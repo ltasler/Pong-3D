@@ -11,11 +11,14 @@ public class Paddle : MonoBehaviour {
 	[SerializeField]
 	float _speed;
 	[SerializeField]
-	bool _isAi;
+	AiDifficulity _aiDifficulity;
+
 
 	CharacterController _charController;
 
 	GameObject _puck;
+	Vector3 _lookDirection;
+	Vector3 _startPosition;
 
 	void Awake() {
 		_charController = GetComponent<CharacterController>();
@@ -24,21 +27,23 @@ public class Paddle : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		_puck = GameObject.FindGameObjectWithTag("Puck");
+		_lookDirection = transform.TransformDirection(transform.forward);
+		_startPosition = transform.position;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (_isAi) {
-			MoveAi();
-		} else {
+		if (_aiDifficulity == AiDifficulity.None) {
 			float x = Input.GetAxis("Horizontal_P" + _playerNumber);
 			float y = Input.GetAxis("Vertical_P" + _playerNumber);
 			Move(x, y);
+		} else {
+			MoveAi();
 		}
 	}
 	void OnDrawGizmos() {
 		Gizmos.color = Color.yellow;
-		Gizmos.DrawRay(transform.position, transform.TransformDirection(transform.forward));
+		Gizmos.DrawRay(transform.position, _lookDirection);
 	}
 
 	public Vector3 GetBounceDirection(Collision collision) {
@@ -63,17 +68,23 @@ public class Paddle : MonoBehaviour {
 	}
 
 	private void MoveAi() {
-		Vector3 puckPosition = _puck.transform.position;
+		Vector3 targetPosition = _puck.transform.position;
+		if(Mathf.Sign(_lookDirection.z) == Mathf.Sign(targetPosition.z)) {
+			//Pomeni da gre žoga stran od ploščka --> go back to start
+			targetPosition = _startPosition;
+		}
 
-		float deltaX = puckPosition.x - transform.position.x;
-		float deltaY = puckPosition.y - transform.position.y;
+		float deltaX = targetPosition.x - transform.position.x;
+		float deltaY = targetPosition.y - transform.position.y;
+
+		float modifier = AiDifficulityExtension.SpeedModifier(_aiDifficulity);
 
 		float x = 0,
 			y = 0;
-		if (Mathf.Abs(deltaX) > .5f)
-			x = Mathf.Clamp(deltaX, -1, 1);
-		if (Mathf.Abs(deltaY) > .5f)
-			y = Mathf.Clamp(deltaY, -1, 1);
+		//if (Mathf.Abs(deltaX) > .5f)
+			x = Mathf.Clamp(deltaX, -1, 1) * modifier;
+		//if (Mathf.Abs(deltaY) > .5f)
+			y = Mathf.Clamp(deltaY, -1, 1) * modifier;
 
 		Debug.Log("Delta X: " + deltaX + ", x: " + x + "\nDelta Y: " + deltaY + ", y: " + y);
 		Move(x, y);
