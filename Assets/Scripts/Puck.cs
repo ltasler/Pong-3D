@@ -13,7 +13,7 @@ public class Puck : MonoBehaviour {
 	Rigidbody rigidBody;
 
 	//it's required for bouncing
-	Vector3 velocity;
+	public Vector3 Velocity {get;set;}
 
 	void Awake() {
 		rigidBody = GetComponent<Rigidbody>();
@@ -37,7 +37,7 @@ public class Puck : MonoBehaviour {
 		Debug.Log("Ball direction: " + direction);
 		direction.Normalize();
 
-		rigidBody.velocity = velocity = direction * initialSpeed;
+		rigidBody.velocity = Velocity = direction * initialSpeed;
 
 	}
 
@@ -52,12 +52,12 @@ public class Puck : MonoBehaviour {
 				collisonNormal += c.normal;
 			collisonNormal /= collision.contacts.Length;
 
-			newDirection = Vector3.Reflect(velocity.normalized, collisonNormal);
+			newDirection = Vector3.Reflect(Velocity.normalized, collisonNormal);
 		}
 
-		float speed = velocity.magnitude;
+		float speed = Velocity.magnitude;
 		speed += speedupOnHit;
-		rigidBody.velocity = velocity = newDirection * speed;
+		rigidBody.velocity = Velocity = newDirection * speed;
 	}
 
 	void OnTriggerEnter(Collider other) {

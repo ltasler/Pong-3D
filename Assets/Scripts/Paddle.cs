@@ -16,7 +16,7 @@ public class Paddle : MonoBehaviour {
 
 	CharacterController _charController;
 
-	GameObject _puck;
+	Puck _puck;
 	Vector3 _lookDirection;
 	Vector3 _startPosition;
 
@@ -26,7 +26,7 @@ public class Paddle : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		_puck = GameObject.FindGameObjectWithTag("Puck");
+		_puck = GameObject.FindGameObjectWithTag("Puck").GetComponent<Puck>();
 		_lookDirection = transform.TransformDirection(transform.forward);
 		_startPosition = transform.position;
 	}
@@ -68,11 +68,12 @@ public class Paddle : MonoBehaviour {
 	}
 
 	private void MoveAi() {
-		Vector3 targetPosition = _puck.transform.position;
-		if(Mathf.Sign(_lookDirection.z) == Mathf.Sign(targetPosition.z)) {
-			//Pomeni da gre žoga stran od ploščka --> go back to start
+		Vector3 targetPosition;
+		//Pomeni da gre žoga stran od ploščka --> go back to start
+		if (Mathf.Sign(_lookDirection.z) == Mathf.Sign(_puck.Velocity.z)) 
 			targetPosition = _startPosition;
-		}
+		else 
+			targetPosition = _puck.transform.position;
 
 		float deltaX = targetPosition.x - transform.position.x;
 		float deltaY = targetPosition.y - transform.position.y;
@@ -85,8 +86,7 @@ public class Paddle : MonoBehaviour {
 			x = Mathf.Clamp(deltaX, -1, 1) * modifier;
 		//if (Mathf.Abs(deltaY) > .5f)
 			y = Mathf.Clamp(deltaY, -1, 1) * modifier;
-
-		Debug.Log("Delta X: " + deltaX + ", x: " + x + "\nDelta Y: " + deltaY + ", y: " + y);
+		
 		Move(x, y);
 	}
 }
