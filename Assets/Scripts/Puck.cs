@@ -9,9 +9,11 @@ public class Puck : MonoBehaviour {
 	public static event PlayerScored OnPlayerScored;
 
 	[SerializeField]
-	float initialSpeed = 10f;
+	float _initialSpeed = 10f;
 	[SerializeField]
-	float speedupOnHit = .5f;
+	float _speedupOnHit = .5f;
+	[SerializeField]
+	ParticleSystem _collisionParticle;
 
 	Rigidbody rigidBody;
 
@@ -33,12 +35,13 @@ public class Puck : MonoBehaviour {
 	}
 
 	void OnCollisionEnter(Collision collision) {
+		PlayParticleCollision(collision);
 		Paddle paddle = collision.gameObject.GetComponent<Paddle>();
 		Vector3 newDirection;
 		float speed = Velocity.magnitude;
 		if (paddle) {
 			newDirection = paddle.GetBounceDirection(collision);
-			speed += speedupOnHit;
+			speed += _speedupOnHit;
 		} else {
 			Vector3 collisonNormal = Vector3.zero;
 			foreach (ContactPoint c in collision.contacts)
@@ -83,7 +86,25 @@ public class Puck : MonoBehaviour {
 		direction.Normalize();
 		Debug.Log("Ball direction: " + direction);
 
-		rigidBody.velocity = Velocity = direction * initialSpeed;
+		rigidBody.velocity = Velocity = direction * _initialSpeed;
 
+	}
+
+	private void PlayParticleCollision(Collision collision) {
+		if (_collisionParticle == null) {
+			Debug.Log("[Puck - PlayParticleCollision]: No particle system for collision prefab is set!");
+			return;
+		}
+		Vector3 collisionPosition = Vector3.zero;
+		Vector3 normal = Vector3.zero;
+		foreach(ContactPoint c in collision.contacts) {
+			collisionPosition += c.point;
+			normal += c.normal;
+		}
+		collisionPosition /= collision.contacts.Length;
+		normal = (normal/collision.contacts.Length).normalized * 360;
+		float duration = _collisionParticle.main.duration;
+		GameObject newObject = Instantiate(_collisionParticle.gameObject, collisionPosition, Quaternion.Euler(normal));
+		Destroy(newObject, duration);
 	}
 }
