@@ -20,6 +20,10 @@ public class Paddle : MonoBehaviour {
 	Vector3 _lookDirection;
 	Vector3 _startPosition;
 
+	//for very hard ai
+	Vector3 _positionOffset = Vector3.zero;
+	bool _newPositionOffset;
+
 	void Awake() {
 		_charController = GetComponent<CharacterController>();
 	}
@@ -70,10 +74,17 @@ public class Paddle : MonoBehaviour {
 	private void MoveAi() {
 		Vector3 targetPosition;
 		//Pomeni da gre žoga stran od ploščka --> go back to start
-		if (Mathf.Sign(_lookDirection.z) == Mathf.Sign(_puck.Velocity.z)) 
+		if (Mathf.Sign(_lookDirection.z) == Mathf.Sign(_puck.Velocity.z)) {
 			targetPosition = _startPosition;
-		else 
-			targetPosition = _puck.transform.position;
+			if (_aiDifficulity == AiDifficulity.Hard && !_newPositionOffset) { //hard ai nas poskuša zajebat
+				_positionOffset = new Vector3(Random.Range(-.8f,.8f), Random.Range(-.8f,.8f));
+				Debug.Log("[Paddle - MoveAi] Position offset is " + _positionOffset);
+				_newPositionOffset = true;
+			}
+		} else {
+			targetPosition = _puck.transform.position + _positionOffset;
+			_newPositionOffset = false;
+		}
 
 		float deltaX = targetPosition.x - transform.position.x;
 		float deltaY = targetPosition.y - transform.position.y;

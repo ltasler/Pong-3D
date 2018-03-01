@@ -18,7 +18,7 @@ public static class AiDifficulityExtension {
 			case AiDifficulity.Normal:
 				return 1f;
 			case AiDifficulity.Hard:
-				return 2f;
+				return 1.5f;
 			default:
 				return 0f;
 		}
