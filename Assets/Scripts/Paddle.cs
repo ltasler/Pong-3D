@@ -77,7 +77,7 @@ public class Paddle : MonoBehaviour {
 		if (Mathf.Sign(_lookDirection.z) == Mathf.Sign(_puck.Velocity.z)) {
 			targetPosition = _startPosition;
 			if (_aiDifficulity == AiDifficulity.Hard && !_newPositionOffset) { //hard ai nas poskuša zajebat
-				_positionOffset = new Vector3(Random.Range(-.8f,.8f), Random.Range(-.8f,.8f));
+				_positionOffset = new Vector3(Random.Range(-.4f,.4f), Random.Range(-.4f,.4f));
 				Debug.Log("[Paddle - MoveAi] Position offset is " + _positionOffset);
 				_newPositionOffset = true;
 			}
